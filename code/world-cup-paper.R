@@ -257,9 +257,9 @@ mod2 <- run(f, euro_2008)
 stargazer(mod1$mod, mod2$mod,
           out = "tables/placebos.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
           align = TRUE, omit = "factor",
-          order = c("^placebo$", "^qualified$", "^placebo:qualified$", "^tournament$", "^tournament:qualified$"),
+          order = c("^placebo$", "^qualified$", "^placebo:qualified$"),
           se = list(mod1$se, mod2$se, mod3$se, mod4$se),
-          covariate.labels = c("\\textsc{placebo}", "\\textsc{qualified}", "\\textsc{placebo $\\times$ qualified}", "\\textsc{tournament}", "\\textsc{tournament $\\times$ qualified}", "\\textit{Constant}"),
+          covariate.labels = c("\\textsc{placebo}", "\\textsc{qualified}", "\\textsc{placebo $\\times$ qualified}", "\\textit{Constant}"),
           keep.stat = c("n", "rsq"))
 
 #################################################
@@ -272,13 +272,13 @@ mod1 <- run(f, world_cup_2006)
 # mod1$table
 
 # model 2
-f <- resolved_LFN258_stage ~ tournament * qualified
-mod2 <- run(f, euro_2008)
+f <- resolved_LFN258_stage ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
+mod2 <- run(f, world_cup_2006)
 # mod2$table
 
 # model 3
-f <- resolved_LFN258_stage ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
-mod3 <- run(f, world_cup_2006)
+f <- resolved_LFN258_stage ~ tournament * qualified
+mod3 <- run(f, euro_2008)
 # mod3$table
 
 # model 4
@@ -294,28 +294,6 @@ stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
           se = list(mod1$se, mod2$se, mod3$se, mod4$se),
           covariate.labels = c("\\textsc{tournament}", "\\textsc{qualified}", "\\textsc{tournament $\\times$ qualified}", "\\textit{Constant}"),
           keep.stat = c("n", "rsq"))
-
-##################################################
-# by hand
-##################################################
-
-# # DiD estimate
-# # first subscript is qualified vs not qualified
-# # second subscript is tournament vs non-tournament
-# y00 <- mean(pilot$duration_LFN258[pilot$treated == 0 & pilot$post_treatment == 0])
-# y10 <- mean(pilot$duration_LFN258[pilot$treated == 1 & pilot$post_treatment == 0])
-# y01 <- mean(pilot$duration_LFN258[pilot$treated == 0 & pilot$post_treatment == 1])
-# y11 <- mean(pilot$duration_LFN258[pilot$treated == 1 & pilot$post_treatment == 1])
-# # first difference is tournament vs non-tournament
-# # second difference is qualified vs not qualified
-# DiD <- (y11 - y10) - (y01 - y00)
-# # -37.49794
-# 
-# # DiD estimate by regression
-# f <- duration_LFN258 ~ treated * post_treatment
-# mod <- run(f, pilot)
-# DiD <- mod$table[4,1]
-# # -37.49794
 
 ###########################################################################
 ###########################################################################
