@@ -19,7 +19,7 @@ library(ggplot2)
 library(gridExtra)
 
 # set working directory
-setwd("~/Documents/world-cup-paper")
+setwd("~/Dropbox/world-cup-paper")
 
 ###########################################################################
 ###########################################################################
@@ -89,10 +89,13 @@ qualification$progress[qualification$tournament_type == "UEFA Euro" & qualificat
 world_cup_2006 <- filter(cases, date_LFN258 > tournaments$end_date[tournaments$tournament == "UEFA Euro 2004"] & date_end < tournaments$start_date[tournaments$tournament == "UEFA Euro 2008"])
 
 # select variables
-world_cup_2006 <- select(world_cup_2006, case_number, case_year, member_state, member_state_code, directorate_general_code, 
-                         type_noncommunication, type_nonconformity, 
-                         stage_LFN258, stage_RO258, stage_RF258, resolved_LFN258_stage,
-                         date_LFN258, date_end_LFN258, date_end, duration_case, duration_prelitigation, duration_LFN258)
+world_cup_2006 <- select(
+  world_cup_2006, 
+  case_number, case_year, member_state, member_state_code, directorate_general, directorate_general_code, 
+  type_noncommunication, type_nonconformity, 
+  stage_LFN258, stage_RO258, stage_RF258, resolved_LFN258_stage,
+  date_LFN258, date_end_LFN258, date_end, duration_case, duration_prelitigation, duration_LFN258
+)
 
 # tournament dates
 tournament_start_date <- tournaments$start_date[tournaments$tournament == "2006 FIFA World Cup"]
@@ -105,16 +108,24 @@ qualfied_member_states <- qualification$member_state[qualification$tournament ==
 world_cup_2006$qualified <- as.numeric(world_cup_2006$member_state %in% qualfied_member_states)
 
 # pre/post
-world_cup_2006$tournament <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date & world_cup_2006$date_end > tournament_start_date)
+# world_cup_2006$tournament <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date & world_cup_2006$date_end > tournament_start_date)
+world_cup_2006$tournament <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date & world_cup_2006$date_end_LFN258 > tournament_start_date)
 
 # placebo variable
-world_cup_2006$placebo <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date - years(1) & world_cup_2006$date_end > tournament_start_date - years(1))
+# world_cup_2006$placebo <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date - years(1) & world_cup_2006$date_end > tournament_start_date - years(1))
+world_cup_2006$placebo <- as.numeric(world_cup_2006$date_LFN258 < tournament_end_date - years(1) & world_cup_2006$date_end_LFN258 > tournament_start_date - years(1))
 
 # progress in the tournament
 world_cup_2006_progress  <- filter(qualification, tournament == "2006 FIFA World Cup")
 world_cup_2006_progress <- select(world_cup_2006_progress, member_state, progress)
 world_cup_2006 <- left_join(world_cup_2006, world_cup_2006_progress, by = "member_state")
 world_cup_2006$progress[is.na(world_cup_2006$progress)] <- 0
+
+# year
+world_cup_2006$year <- year(world_cup_2006$date_LFN258)
+
+# month
+world_cup_2006$month <- month(world_cup_2006$date_LFN258)
 
 ##################################################
 # 2008 euros
@@ -124,10 +135,13 @@ world_cup_2006$progress[is.na(world_cup_2006$progress)] <- 0
 euro_2008 <- filter(cases, date_LFN258 > tournaments$end_date[tournaments$tournament == "2006 FIFA World Cup"] & date_end < tournaments$start_date[tournaments$tournament == "2010 FIFA World Cup"])
 
 # select variables
-euro_2008 <- select(euro_2008, case_number, case_year, member_state, member_state_code, directorate_general_code, 
-                     type_noncommunication, type_nonconformity, 
-                     stage_LFN258, stage_RO258, stage_RF258, resolved_LFN258_stage,
-                     date_LFN258, date_end_LFN258, date_end, duration_case, duration_prelitigation, duration_LFN258)
+euro_2008 <- select(
+  euro_2008, 
+  case_number, case_year, member_state, member_state_code, directorate_general, directorate_general_code, 
+  type_noncommunication, type_nonconformity, 
+  stage_LFN258, stage_RO258, stage_RF258, resolved_LFN258_stage,
+  date_LFN258, date_end_LFN258, date_end, duration_case, duration_prelitigation, duration_LFN258
+)
 
 # tournament dates
 tournament_start_date <- tournaments$start_date[tournaments$tournament == "UEFA Euro 2008"]
@@ -140,16 +154,24 @@ qualfied_member_states <- qualification$member_state[qualification$tournament ==
 euro_2008$qualified <- as.numeric(euro_2008$member_state %in% qualfied_member_states)
 
 # pre/post
-euro_2008$tournament <- as.numeric(euro_2008$date_LFN258 < tournament_end_date & euro_2008$date_end > tournament_start_date)
+# euro_2008$tournament <- as.numeric(euro_2008$date_LFN258 < tournament_end_date & euro_2008$date_end > tournament_start_date)
+euro_2008$tournament <- as.numeric(euro_2008$date_LFN258 < tournament_end_date & euro_2008$date_end_LFN258 > tournament_start_date)
 
 # placebo variable
-euro_2008$placebo <- as.numeric(euro_2008$date_LFN258 < tournament_end_date - years(1) & euro_2008$date_end > tournament_start_date - years(1))
+# euro_2008$placebo <- as.numeric(euro_2008$date_LFN258 < tournament_end_date - years(1) & euro_2008$date_end > tournament_start_date - years(1))
+euro_2008$placebo <- as.numeric(euro_2008$date_LFN258 < tournament_end_date - years(1) & euro_2008$date_end_LFN258 > tournament_start_date - years(1))
 
 # progress in the tournament
 euro_2008_progress  <- filter(qualification, tournament == "UEFA Euro 2008")
 euro_2008_progress <- select(euro_2008_progress, member_state, progress)
 euro_2008 <- left_join(euro_2008, euro_2008_progress, by = "member_state")
 euro_2008$progress[is.na(euro_2008$progress)] <- 0
+
+# year
+euro_2008$year <- year(euro_2008$date_LFN258)
+
+# month 
+euro_2008$month <- month(euro_2008$date_LFN258)
 
 ###########################################################################
 ###########################################################################
@@ -163,7 +185,8 @@ euro_2008$progress[is.na(euro_2008$progress)] <- 0
 
 run <- function(f, dat) {
   mod <- lm(f, dat)
-  vcov <- vcovHC(mod, type = "HC0")
+  # vcov <- vcovHC(mod, type = "HC0")
+  vcov <- cluster.vcov(model = mod, cluster = dat$member_state)
   table <- coeftest(mod, vcov = vcov)
   se <- table[,2]
   p <- table[,4]
@@ -178,32 +201,40 @@ run <- function(f, dat) {
 # model 1
 f <- duration_LFN258 ~ tournament * qualified
 mod1 <- run(f, world_cup_2006)
-# mod1$table
+mod1$table
 
 # model 2
-f <- duration_LFN258 ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
+f <- duration_LFN258 ~ tournament * qualified + factor(member_state) + factor(directorate_general)
 mod2 <- run(f, world_cup_2006)
-# mod2$table
+mod2$table
 
 # model 3
-f <- duration_prelitigation ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
+f <- duration_LFN258 ~ tournament * qualified + factor(member_state) + factor(directorate_general) + factor(year) + factor(month)
 mod3 <- run(f, world_cup_2006)
-# mod3$table
+mod3$table
 
 # model 4
-f <- duration_LFN258 ~ tournament * progress + factor(member_state_code) + factor(directorate_general_code)
+f <- duration_LFN258 ~ tournament * progress + factor(member_state) + factor(directorate_general)
 mod4 <- run(f, world_cup_2006)
-# mod4$table
+mod4$table
+
+# model 5
+f <- duration_LFN258 ~ placebo * qualified + factor(member_state_code) + factor(directorate_general_code)
+mod5 <- run(f, world_cup_2006)
+mod5$table
 
 # export a LaTeX table
-stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
-          out = "tables/2006-world-cup.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
-          align = TRUE, omit = "factor",
-          order = c("^tournament$", "^qualified$", "^tournament:qualified$", "^progress$", "^tournament:progress$"),
-          se = list(mod1$se, mod2$se, mod3$se, mod4$se),
-          p = list(mod1$p, mod2$p, mod3$p, mod4$p),
-          covariate.labels = c("\\textsc{tournament}", "\\textsc{qualified}", "\\textsc{tournament $\\times$ qualified}", "\\textsc{progress}", "\\textsc{tournament $\\times$ progress}", "\\textit{Constant}"),
-          keep.stat = c("n", "rsq"))
+stargazer(
+  mod1$mod, mod2$mod, mod3$mod, mod4$mod, mod5$mod,
+  out = "tables/version-2/2006-world-cup.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
+  align = TRUE, 
+  omit = "factor",
+  order = c("^tournament$", "^qualified$", "^tournament:qualified$", "^progress$", "^tournament:progress$", "^placebo$", "^placebo:qualified$"),
+  se = list(mod1$se, mod2$se, mod3$se, mod4$se, mod5$se),
+  p = list(mod1$p, mod2$p, mod3$p, mod4$p, mod5$se),
+  covariate.labels = c("\\textsc{tournament}", "\\textsc{qualifying}", "\\textsc{tournament $\\times$ qualifying}", "\\textsc{progress}", "\\textsc{tournament $\\times$ progress}", "\\textsc{placebo}","\\textsc{placebo $\\times$ qualifying}", "\\textit{Constant}"),
+  keep.stat = c("n", "rsq")
+)
 
 #################################################
 # euro 2008 models
@@ -212,32 +243,40 @@ stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
 # model 1
 f <- duration_LFN258 ~ tournament * qualified
 mod1 <- run(f, euro_2008)
-# mod1$table
+mod1$table
 
 # model 2
 f <- duration_LFN258 ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
 mod2 <- run(f, euro_2008)
-# mod2$table
+mod2$table
 
 # model 3
-f <- duration_prelitigation ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
+f <- duration_LFN258 ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code) + factor(year) + factor(month)
 mod3 <- run(f, euro_2008)
-# mod3$table
+mod3$table
 
 # model 4
-f <- duration_LFN258 ~ tournament * progress + factor(member_state_code) + factor(directorate_general_code)
+f <- duration_LFN258 ~ tournament * progress + factor(member_state_code) + factor(directorate_general_code) + factor(year) + factor(month)
 mod4 <- run(f, euro_2008)
-# mod4$table
+mod4$table
+
+# model 5
+f <- duration_LFN258 ~ placebo * qualified + factor(member_state_code) + factor(directorate_general_code)
+mod5 <- run(f, euro_2008)
+mod5$table
 
 # export a LaTeX table
-stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
-          out = "tables/euro-2008.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
-          align = TRUE, omit = "factor",
-          order = c("^tournament$", "^qualified$", "^tournament:qualified$", "^progress$", "^tournament:progress$"),
-          se = list(mod1$se, mod2$se, mod3$se, mod4$se),
-          p = list(mod1$p, mod2$p, mod3$p, mod4$p),
-          covariate.labels = c("\\textsc{tournament}", "\\textsc{qualified}", "\\textsc{tournament $\\times$ qualified}", "\\textsc{progress}", "\\textsc{tournament $\\times$ progress}", "\\textit{Constant}"),
-          keep.stat = c("n", "rsq"))
+stargazer(
+  mod1$mod, mod2$mod, mod3$mod, mod4$mod, mod5$mod,
+  out = "tables/version-2/euro-2008.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
+  align = TRUE, 
+  omit = "factor",
+  order = c("^tournament$", "^qualified$", "^tournament:qualified$", "^progress$", "^tournament:progress$", "^placebo$", "^placebo:qualified$"),
+  se = list(mod1$se, mod2$se, mod3$se, mod4$se, mod5$se),
+  p = list(mod1$p, mod2$p, mod3$p, mod4$p, mod5$se),
+  covariate.labels = c("\\textsc{tournament}", "\\textsc{qualifying}", "\\textsc{tournament $\\times$ qualifying}", "\\textsc{progress}", "\\textsc{tournament $\\times$ progress}", "\\textsc{placebo}","\\textsc{placebo $\\times$ qualifying}", "\\textit{Constant}"),
+  keep.stat = c("n", "rsq")
+)
 
 #################################################
 # robustness check: placebos
@@ -246,21 +285,23 @@ stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
 # model 1
 f <- duration_LFN258 ~ placebo * qualified + factor(member_state_code) + factor(directorate_general_code)
 mod1 <- run(f, world_cup_2006)
-# mod1$table
+mod1$table
 
 # model 2
 f <- duration_LFN258 ~ placebo * qualified + factor(member_state_code) + factor(directorate_general_code)
 mod2 <- run(f, euro_2008)
-# mod2$table
+mod2$table
 
 # export a LaTeX table
-stargazer(mod1$mod, mod2$mod,
-          out = "tables/placebos.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
-          align = TRUE, omit = "factor",
-          order = c("^placebo$", "^qualified$", "^placebo:qualified$"),
-          se = list(mod1$se, mod2$se, mod3$se, mod4$se),
-          covariate.labels = c("\\textsc{placebo}", "\\textsc{qualified}", "\\textsc{placebo $\\times$ qualified}", "\\textit{Constant}"),
-          keep.stat = c("n", "rsq"))
+stargazer(
+  mod1$mod, mod2$mod,
+  out = "tables/version-2/placebos.tex", type = "latex", style = "default", digits = 3, no.space = TRUE, 
+  align = TRUE, omit = "factor",
+  order = c("^placebo$", "^qualified$", "^placebo:qualified$"),
+  se = list(mod1$se, mod2$se, mod3$se, mod4$se),
+  covariate.labels = c("\\textsc{placebo}", "\\textsc{qualified}", "\\textsc{placebo $\\times$ qualified}", "\\textit{Constant}"),
+  keep.stat = c("n", "rsq")
+)
 
 #################################################
 # robustness check: response quality
@@ -269,22 +310,22 @@ stargazer(mod1$mod, mod2$mod,
 # model 1
 f <- resolved_LFN258_stage ~ tournament * qualified
 mod1 <- run(f, world_cup_2006)
-# mod1$table
+mod1$table
 
 # model 2
 f <- resolved_LFN258_stage ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
 mod2 <- run(f, world_cup_2006)
-# mod2$table
+mod2$table
 
 # model 3
 f <- resolved_LFN258_stage ~ tournament * qualified
 mod3 <- run(f, euro_2008)
-# mod3$table
+mod3$table
 
 # model 4
 f <- resolved_LFN258_stage ~ tournament * qualified + factor(member_state_code) + factor(directorate_general_code)
 mod4 <- run(f, euro_2008)
-# mod4$table
+mod4$table
 
 # export a LaTeX table
 stargazer(mod1$mod, mod2$mod, mod3$mod, mod4$mod,
@@ -466,6 +507,117 @@ plot2 <- ggplot() +
 pdf(file = "plots/qualification.pdf", width = 10, height = 6)
 grid.arrange(plot1, plot2, ncol = 2, nrow = 1, widths = c(1, 1), heights = 1)
 dev.off()
+
+#################################################
+# strategic timing
+#################################################
+
+load("data/decisions.RData")
+
+# code year and month
+decisions$year <- year(decisions$decision_date)
+decisions$month <- month(decisions$decision_date)
+
+decisions$period <- str_replace(decisions$decision_date, "[0-9]{2}$", "01")
+decisions$period <- ymd(decisions$period)
+
+# collapse by year, month, and qualified
+plot_data <- decisions %>%
+  group_by(period, decision_stage) %>%
+  filter(decision_stage %in% c("Letter of formal notice (Art. 258)", "Reasoned opinion (Art. 258)")) %>%
+  summarize(
+    count = n()
+  )
+
+# make plot
+plot <- ggplot(plot_data) +
+  geom_line(aes(x = period, y = count, color = decision_stage), size = 0.5) +
+  geom_smooth(aes(x = period, y = count, color = decision_stage), se = FALSE, span = 0.5) +
+  annotate("rect", xmin = as_date("2006-06-09"), xmax = as_date("2006-07-09"), ymin = -Inf, ymax = Inf, color = NA, fill = "black", alpha = 0.1) +
+  scale_x_date(limits = c(as_date("2005-01-01"), as_date("2007-12-31"))) + 
+  JCF_theme()
+plot
+
+#################################################
+# parallel trends assumption
+#################################################
+
+# code year and month
+world_cup_2006$year <- year(world_cup_2006$date_LFN258)
+world_cup_2006$month <- month(world_cup_2006$date_LFN258)
+
+world_cup_2006$period <- str_replace(world_cup_2006$date_LFN258, "[0-9]{2}$", "15")
+world_cup_2006$period <- ymd(world_cup_2006$period)
+
+world_cup_2006$pre_tournament <- as.numeric(ymd(world_cup_2006$date_LFN258) > ymd("2006-06-09"))
+world_cup_2006$post_tournament <- as.numeric(ymd(world_cup_2006$date_LFN258) > ymd("2006-07-09"))
+
+# code year and month
+euro_2008$year <- year(euro_2008$date_LFN258)
+euro_2008$month <- month(euro_2008$date_LFN258)
+
+euro_2008$period <- str_replace(euro_2008$date_LFN258, "[0-9]{2}$", "15")
+euro_2008$period <- ymd(euro_2008$period)
+
+euro_2008$pre_tournament <- as.numeric(ymd(euro_2008$date_LFN258) > ymd("2008-06-07"))
+euro_2008$post_tournament <- as.numeric(ymd(euro_2008$date_LFN258) > ymd("2008-06-29"))
+
+# collapse by year, month, and qualified
+trends_2006 <- world_cup_2006 %>%
+  filter(tournament == 0) %>%
+  group_by(pre_tournament, qualified) %>%
+  summarize(
+    duration_LFN258 = mean(duration_LFN258)
+  )
+
+plot <- ggplot(trends_2006) +
+  geom_point(aes(x = factor(pre_tournament), y = duration_LFN258, color = factor(qualified))) +
+  JCF_theme()
+plot
+
+means <- tibble(
+  period = unique(world_cup_2006$period),
+  difference = NA,
+  p_value = NA
+)
+for(i in 1:nrow(means)) {
+  sample <- filter(world_cup_2006, period == means$period[i] & tournament == 0)
+  if(nrow(sample) < 10) {
+    next
+  }
+  test <- t.test(duration_LFN258 ~ qualified, data = sample)
+  means$difference[i] <- as.numeric(test$estimate[2] - test$estimate[1])
+  means$p_value[i] <- test$p.value
+}
+
+
+t.test(duration_LFN258 ~ qualified, data = filter(world_cup_2006, pre_tournament == 1 & tournament == 0))
+t.test(duration_LFN258 ~ qualified, data = filter(world_cup_2006, pre_tournament == 0 & tournament == 0))
+
+t.test(duration_LFN258 ~ qualified, data = filter(world_cup_2006, tournament == 1))
+t.test(duration_LFN258 ~ qualified, data = filter(world_cup_2006, tournament == 0))
+
+t.test(duration_LFN258 ~ pre_tournament, data = filter(world_cup_2006, tournament == 1))
+
+t.test(duration_LFN258 ~ qualified, data = filter(euro_2008, pre_tournament == 1 & tournament == 0))
+t.test(duration_LFN258 ~ qualified, data = filter(euro_2008, pre_tournament == 0 & tournament == 0))
+
+
+# template <- expand.grid(year = 2004:2008, month = 1:12, qualified = c(0, 1))
+# trends_2006 <- left_join(template, trends_2006, by = c("year", "month", "qualified"))
+
+# trends_2006$period <- trends_2006$year + (trends_2006$month / 12 - (1 / 12))
+
+# make plot
+plot <- ggplot(trends_2006) +
+  # geom_point(aes(x = period, y = duration_LFN258, color = factor(qualified), size = count)) +
+  geom_line(aes(x = period, y = duration_qualified)) +
+  geom_line(aes(x = period, y = duration_unqualified)) +
+  # geom_smooth(aes(x = period, y = duration_LFN258, color = factor(qualified)), se = FALSE, span = 0.4) +
+  JCF_theme()
+plot
+
+
 
 ###########################################################################
 # end R script
